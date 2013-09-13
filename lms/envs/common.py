@@ -883,6 +883,9 @@ INSTALLED_APPS = (
 
     # Student Identity Verification
     'verify_student',
+
+    # Enable course-specific features
+    'course_features',
 )
 
 ######################### MARKETING SITE ###############################
