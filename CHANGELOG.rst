@@ -8,7 +8,7 @@ the top.  Include a label indicating the component affected.
 LMS: enhanced shib support, including detection of linked shib account
 at login page and support for the ?next= GET parameter.
 
-LMS: Experimental feature using the ICE change tracker JS pkg to allow peer 
+LMS: Experimental feature using the ICE change tracker JS pkg to allow peer
 assessors to edit the original submitter's work.
 
 LMS: Fixed a bug that caused links from forum user profile pages to
