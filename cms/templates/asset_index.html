@@ -72,7 +72,7 @@
         <table>
           <thead>
             <tr>
-              <th class="thumb-col"></th>
+              <th class="thumb-col">Preview</th>
               <th class="name-col">Name</th>
               <th class="date-col">Date Added</th>
               <th class="embed-col">URL</th>
@@ -99,8 +99,8 @@
               <td class="embed-col">
                 <input type="text" class="embeddable-xml-input" value="${asset['portable_url']}" readonly>
               </td>
-              <td class="delete-col">
-                <a href="#" data-tooltip="${_('Delete this asset')}" class="remove-asset-button"><span class="delete-icon"></span></a>
+              <td class="actions-col">
+                <a href="#" data-tooltip="${_('Delete this asset')}" class="remove-asset-button"><i class="icon-remove-sign"></i></a>
               </td>
             </tr>
           % endfor
@@ -127,16 +127,16 @@
         </div>
         <div class="bit">
           <h3 class="title-3">${_("What can I do on this page?")}</h3>
-          <p>${_("You can click the file name to view the file, upload a new file, delete a file, and lock a file to prevent people who are not enrolled from accessing that specific file. You can also copy the location (URL) of a file to use elsewhere in your course.")}</p>
+          <p>${_("You can click the file name to view or download the file, upload a new file, delete a file, and lock a file to prevent people who are not enrolled from accessing that specific file. You can also copy the location (URL) of a file to use elsewhere in your course.")}</p>
         </div>
       </aside>
     </section>
   </div>
 
   <div class="upload-modal modal">
-    <a href="#" class="close-button"><span class="close-icon"></span></a>
+    <a href="#" class="close-button"><i class="icon-remove-sign"></i> <span class="sr">${_('close')}</span></a>
     <div class="modal-body">
-      <h1>${_("Upload New File")}</h1>
+      <h1 class="title">${_("Upload New File")}</h1>
       <p class="file-name"></a>
       <div class="progress-bar">
         <div class="progress-fill"></div>

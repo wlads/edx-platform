@@ -20,7 +20,7 @@ body.course.uploads {
       color: $gray;
 
       .new-button {
-        @include font-size(14);
+        @extend .t-copy-sub1;
         margin-left: $baseline;
 
         [class^="icon-"] {
@@ -51,78 +51,124 @@ body.course.uploads {
 
     table {
       width: 100%;
-      border-radius: 3px 3px 0 0;
-      border: 1px solid #c5cad4;
+      border-top: 5px solid $gray-l4;
 
-      td,
+      thead tr {
+      }
+
       th {
-        padding: 10px 20px;
+        @extend .t-copy-sub2;
+        background-color: $gray-l5;
+        color: $gray;
+        padding: ($baseline*.75) $baseline;
         text-align: left;
         vertical-align: middle;
       }
 
-      thead th {
-        @include linear-gradient(top, transparent, rgba(0, 0, 0, .1));
-        background-color: #ced2db;
-        font-size: 12px;
-        font-weight: 700;
-        text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+      td {
+        padding: ($baseline/2) $baseline;
+        text-align: left;
+        vertical-align: middle;
       }
 
       tbody {
-        background: #fff;
+        box-shadow: 0 2px 5px $shadow;
+        border: 1px solid $gray-l4;
+        background: $white;
 
         tr {
-          border-top: 1px solid #c5cad4;
+          @include transition(all $tmg-f2 ease-in-out 0s);
+          border-top: 1px solid $gray-l4;
 
           &:first-child {
             border-top: none;
           }
-        }
 
-        .name-col {
-          font-size: 14px;
-        }
+          &:nth-child(odd) {
+            background-color: $gray-l6;
+          }
 
-        .date-col {
-          font-size: 12px;
-        }
-      }
+          a {
+            color: $gray-d1;
 
-      .thumb-col {
-        width: 100px;
-      }
+            &.remove-asset-button {
+              color: $gray-l2;
+            }
 
-      .date-col {
-        width: 220px;
-      }
+            &:hover {
+              color: $blue;
 
-      .embed-col {
-        width: 250px;
-      }
+              &.remove-asset-button {
+                color: $blue;
+              }
 
-      .delete-col {
-        width: 20px;
-      }
+            }
+          }
 
-      .embeddable-xml-input {
-        box-shadow: none;
-        width: 100%;
-      }
+          .thumb-col {
+            width: 20%;
+            overflow: hidden;
 
-      .thumb {
-        width: 100px;
-        max-height: 80px;
+            .thumb {
+              width: $baseline*5;
 
-        img {
-          width: 100%;
+              img {
+                width: 100%;
+              }
+            }
+          }
+
+          .name-col {
+            @extend .t-copy-sub1;
+            width: 20%;
+          }
+
+          .date-col {
+            @include transition(all $tmg-f2 ease-in-out 0s);
+            @extend .t-copy-sub2;
+            opacity: .5;
+            width: 20%;
+          }
+
+          .embed-col {
+            @include transition(all $tmg-f2 ease-in-out 0s);
+            opacity: .5;
+            width: 30%;
+
+            .embeddable-xml-input {
+              @extend .t-copy-sub2;
+              box-shadow: none;
+              border: none;
+              background: none;
+              width: 100%;
+
+              &:focus {
+                background-color: $white;
+              }
+            }
+          }
+
+          .actions-col {
+            text-align: center;
+            width: $baseline;
+          }
+
+          &:hover {
+            background-color: $blue-l5;
+
+            .date-col,
+            .embed-col {
+              opacity: 1;
+            }
+          }
         }
       }
     }
 
+
     .pagination {
       float: right;
-      margin: 15px 10px;
+      margin: ($baseline*.75) ($baseline/2);
 
       ol, li {
         display: inline;
@@ -130,10 +176,10 @@ body.course.uploads {
 
       a {
         display: inline-block;
-        height: 25px;
-        padding: 0 4px;
+        height: ($baseline*1.5);
+        padding: 0 ($baseline/5);
         text-align: center;
-        line-height: 25px;
+        line-height: ($baseline*1.5);
       }
     }
   }
@@ -151,6 +197,13 @@ body.course.uploads {
     height: auto !important;
     overflow-y: auto !important;
     text-align: center;
+  }
+
+  .title {
+    @extend .t-title3;
+    float: none;
+    margin: ($baseline*2) 0 ($baseline*1.5);
+    font-weight: 300;
   }
 
   .file-input {
@@ -187,24 +240,26 @@ body.course.uploads {
     line-height: 48px;
   }
 
-  h1 {
-    float: none;
-    margin: 40px 0 30px;
-    font-size: 34px;
-    font-weight: 300;
-  }
-
   .close-button {
-    @include white-button;
+    @include transition(color $tmg-f2 ease-in-out 0s);
     position: absolute;
     top: 0;
     right: 15px;
-    width: 29px;
-    height: 29px;
     padding: 0 !important;
     border-radius: 17px !important;
     line-height: 29px;
     text-align: center;
+    border: none;
+    background: none;
+
+    [class^="icon-"] {
+      @include font-size(18);
+    }
+
+    &:hover {
+      background: none;
+      color: $blue;
+    }
   }
 
   .embeddable {
