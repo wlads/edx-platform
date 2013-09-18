@@ -3,6 +3,38 @@
 
 body.course.uploads {
 
+  .content-primary, .content-supplementary {
+    @include box-sizing(border-box);
+    float: left;
+  }
+
+  .content-primary {
+    width: flex-grid(9, 12);
+    margin-right: flex-gutter();
+
+    .no-assets-content {
+      @extend .ui-well;
+      padding: ($baseline*2);
+      background-color: $gray-l4;
+      text-align: center;
+      color: $gray;
+
+      .new-button {
+        @include font-size(14);
+        margin-left: $baseline;
+
+        [class^="icon-"] {
+          margin-right: ($baseline/2);
+        }
+      }
+    }
+
+
+  }
+
+  .content-supplementary {
+    width: flex-grid(3, 12);
+  }
 
   .nav-actions {
 
