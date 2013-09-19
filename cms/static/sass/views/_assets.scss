@@ -13,14 +13,14 @@ body.course.uploads {
     margin-right: flex-gutter();
 
     .no-assets-content {
-      @extend .ui-well;
+      @extend %ui-well;
       padding: ($baseline*2);
       background-color: $gray-l4;
       text-align: center;
       color: $gray;
 
       .new-button {
-        @extend .t-copy-sub1;
+        @extend %t-copy-sub1;
         margin-left: $baseline;
 
         [class^="icon-"] {
@@ -39,7 +39,7 @@ body.course.uploads {
   .nav-actions {
 
     .icon-cloud-upload {
-      @include font-size(16);
+      @extend %t-copy;
       vertical-align: bottom;
       margin-right: ($baseline/5);
     }
@@ -57,7 +57,7 @@ body.course.uploads {
       }
 
       th {
-        @extend .t-copy-sub2;
+        @extend %t-copy-sub2;
         background-color: $gray-l5;
         color: $gray;
         padding: ($baseline*.75) $baseline;
@@ -119,13 +119,13 @@ body.course.uploads {
           }
 
           .name-col {
-            @extend .t-copy-sub1;
+            @extend %t-copy-sub1;
             width: 20%;
           }
 
           .date-col {
             @include transition(all $tmg-f2 ease-in-out 0s);
-            @extend .t-copy-sub2;
+            @extend %t-copy-sub2;
             opacity: .5;
             width: 20%;
           }
@@ -134,9 +134,10 @@ body.course.uploads {
             @include transition(all $tmg-f2 ease-in-out 0s);
             opacity: .5;
             width: 30%;
+            padding-left: ($baseline*.75);
 
             .embeddable-xml-input {
-              @extend .t-copy-sub2;
+              @extend %t-copy-sub2;
               box-shadow: none;
               border: none;
               background: none;
@@ -144,6 +145,8 @@ body.course.uploads {
 
               &:focus {
                 background-color: $white;
+                box-shadow: 0 1px 5px $shadow-l1 inset;
+                border: 1px solid $gray-l3;
               }
             }
           }
@@ -200,7 +203,7 @@ body.course.uploads {
   }
 
   .title {
-    @extend .t-title3;
+    @extend %t-title3;
     float: none;
     margin: ($baseline*2) 0 ($baseline*1.5);
     font-weight: 300;
@@ -253,7 +256,7 @@ body.course.uploads {
     background: none;
 
     [class^="icon-"] {
-      @include font-size(18);
+      @extend %t-action1;
     }
 
     &:hover {
