@@ -118,6 +118,35 @@ def modify_upload(_step, file_name):
         cur_file.write(new_text)
 
 
+@step(u'I (lock|unlock) "([^"]*)"')
+def lock_unlock_file(_step, _lock_state, file_name):
+    index = get_index(file_name)
+    assert index != -1
+    lock_css = "a.lock-asset-button"
+    world.css_click(lock_css, index=index)
+
+
+@step(u'Then "([^"]*)" is (locked|unlocked)')
+def verify_lock_unlock_file(_step, file_name, lock_state):
+    index = get_index(file_name)
+    assert index != -1
+    lock_css = "a.lock-asset-button"
+    text = (world.css_find(lock_css)[index]).text
+    if lock_state == "locked":
+        assert_equal("Unlock this asset", text)
+    else:
+        assert_equal("Lock this asset", text)
+
+
+@step(u'I have opened a course with a locked asset "([^"]*)"')
+def open_course_with_locked(step, file_name):
+    step.given('I have opened a new course in studio')
+    step.given('I go to the files and uploads page')
+    step.given('I upload the file "' + file_name +'"')
+    step.given('I lock "' + file_name +'"')
+    step.given('I reload the page')
+
+
 @step('I see a confirmation that the file was deleted')
 def i_see_a_delete_confirmation(_step):
     alert_css = '#notification-confirmation'

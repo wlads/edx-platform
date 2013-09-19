@@ -57,3 +57,25 @@ Feature: Upload Files
         And I reload the page
         And I upload the file "test"
         Then I can download the correct "test" file
+
+    # Uploading isn't working on safari with sauce labs
+    @skip_safari
+    Scenario: Users can lock assets
+        Given I have opened a new course in studio
+        And I go to the files and uploads page
+        When I upload the file "test"
+        And I lock "test"
+        Then "test" is locked
+        And I see a "saving" notification
+        And I reload the page
+        Then "test" is locked
+
+    # Uploading isn't working on safari with sauce labs
+    @skip_safari
+    Scenario: Users can unlock assets
+        Given I have opened a course with a locked asset "test"
+        And I unlock "test"
+        Then "test" is unlocked
+        And I see a "saving" notification
+        And I reload the page
+        Then "test" is unlocked
