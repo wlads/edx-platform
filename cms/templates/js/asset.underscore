@@ -19,3 +19,12 @@
 <td class="actions-col">
     <a href="#" data-tooltip="<%= gettext('Delete this asset') %>" class="remove-asset-button"><i class="icon-remove-sign"></i></a>
 </td>
+<td class="delete-col">
+    <% if (locked) { %>
+    <a href="#" data-tooltip="<%= gettext('Unlock this asset') %>" class="lock-asset-button"><span
+            class="calendar-icon"></span></a>
+    <% } else { %>
+    <a href="#" data-tooltip="<%= gettext('Lock this asset') %>" class="lock-asset-button"><span
+            class="small-home-icon"></span></a>
+    <% }%>
+</td>
