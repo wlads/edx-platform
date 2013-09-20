@@ -168,23 +168,6 @@ body.course.uploads {
       }
     }
 
-
-    .pagination {
-      float: right;
-      margin: ($baseline*.75) ($baseline/2);
-
-      ol, li {
-        display: inline;
-      }
-
-      a {
-        display: inline-block;
-        height: ($baseline*1.5);
-        padding: 0 ($baseline/5);
-        text-align: center;
-        line-height: ($baseline*1.5);
-      }
-    }
   }
     .show-xml {
     @include blue-button;
