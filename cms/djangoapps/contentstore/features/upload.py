@@ -142,8 +142,8 @@ def verify_lock_unlock_file(_step, file_name, lock_state):
 def open_course_with_locked(step, file_name):
     step.given('I have opened a new course in studio')
     step.given('I go to the files and uploads page')
-    step.given('I upload the file "' + file_name +'"')
-    step.given('I lock "' + file_name +'"')
+    step.given('I upload the file "' + file_name + '"')
+    step.given('I lock "' + file_name + '"')
     step.given('I reload the page')
 
 

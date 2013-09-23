@@ -137,7 +137,7 @@ def upload_asset(request, org, course, coursename):
     # readback the saved content - we need the database timestamp
     readback = contentstore().find(content.location)
 
-    locked=getattr(content, 'locked', False)
+    locked = getattr(content, 'locked', False)
     response_payload = {
         'asset': _get_asset_json(content.name, readback.last_modified_at, content.location, content.thumbnail_location, locked),
         'msg': _('Upload completed')
@@ -174,10 +174,10 @@ def update_asset(request, org, course, name, asset_id):
             content = contentstore().find(loc)
         except NotFoundError:
             return JsonResponse(status=404)
-    
+
         # ok, save the content into the trashcan
         contentstore('trashcan').save(content)
-    
+
         # see if there is a thumbnail as well, if so move that as well
         if content.thumbnail_location is not None:
             try:
@@ -189,7 +189,7 @@ def update_asset(request, org, course, name, asset_id):
                 del_cached_content(thumbnail_content.location)
             except:
                 logging.warning('Could not delete thumbnail: ' + content.thumbnail_location)
-    
+
         # delete the original
         contentstore().delete(content.get_id())
         # remove from cache
@@ -203,6 +203,7 @@ def update_asset(request, org, course, name, asset_id):
         asset_id = modified_asset['url']
         contentstore().set_attr(get_asset_location(asset_id), 'locked', modified_asset['locked'])
         return JsonResponse(modified_asset, status=201)
+
 
 def _get_asset_json(display_name, date, location, thumbnail_location, locked):
     """
