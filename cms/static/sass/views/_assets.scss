@@ -91,22 +91,14 @@ body.course.uploads {
           a {
             color: $gray-d1;
 
-            &.remove-asset-button {
-              color: $gray-l2;
-            }
-
             &:hover {
               color: $blue;
-
-              &.remove-asset-button {
-                color: $blue;
-              }
-
             }
           }
 
           .thumb-col {
-            width: 20%;
+            width: 100px;
+            padding: ($baseline/2) $baseline;
             overflow: hidden;
 
             .thumb {
@@ -153,7 +145,33 @@ body.course.uploads {
 
           .actions-col {
             text-align: center;
-            width: $baseline;
+            width: ($baseline*3);
+            padding: ($baseline/2);
+
+            .action-item {
+              display: inline-block;
+              margin: ($baseline/4) 0 ($baseline/4) ($baseline/4);
+
+              .action-button {
+                @include transition(all $tmg-f2 ease-in-out 0s);
+                display: block;
+                height: ($baseline*1.5);
+                width: ($baseline*1.5);
+                border-radius: 3px;
+                color: $gray-l3;
+
+                &:hover {
+                  background-color: $gray-l3;
+                  color: $gray-l6;
+                }
+              }
+
+              [class^="icon-"] {
+                display: inline-block;
+                vertical-align: bottom;
+              }
+
+            }
           }
 
           &:hover {
@@ -164,6 +182,10 @@ body.course.uploads {
               opacity: 1;
             }
           }
+        }
+
+        .is-locked {
+          background-color: $pink-l3;
         }
       }
     }

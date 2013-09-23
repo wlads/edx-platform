@@ -17,14 +17,19 @@
     <input type="text" class="embeddable-xml-input" value="<%= portable_url %>" readonly>
 </td>
 <td class="actions-col">
-    <a href="#" data-tooltip="<%= gettext('Delete this asset') %>" class="remove-asset-button"><i class="icon-remove-sign"></i></a>
-</td>
-<td class="delete-col">
-    <% if (locked) { %>
-    <a href="#" data-tooltip="<%= gettext('Unlock this asset') %>" class="lock-asset-button"><span
-            class="calendar-icon"></span></a>
-    <% } else { %>
-    <a href="#" data-tooltip="<%= gettext('Lock this asset') %>" class="lock-asset-button"><span
-            class="small-home-icon"></span></a>
-    <% }%>
+    <ul>
+        <li class="action-item">
+            <a href="#" data-tooltip="<%= gettext('Delete this asset') %>" class="remove-asset-button action-button"><i class="icon-remove-sign"></i> <span class="sr">Delete this asset</span></a>
+        </li>
+        <% if (locked) { %>
+        <li class="action-item locked">
+            <a href="#" data-tooltip="<%= gettext('Unlock this asset') %>" class="lock-asset-button action-button"><i class="icon-lock"></i> <span class="sr">Unlock this asset</span></a>
+        </li>
+            <% } else { %>
+        <li class="action-item">
+            <a href="#" data-tooltip="<%= gettext('Lock this asset') %>" class="lock-asset-button action-button"><i class="icon-unlock-alt"></i> <span class="sr">Lock this asset</span></a>
+        </li>
+            <% }%>
+    </ul>
+
 </td>
