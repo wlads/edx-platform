@@ -99,7 +99,7 @@ def delegate_email_batches(email_id, user_id):
     recipient_qset = recipient_qset.order_by('pk')
     total_num_emails = recipient_qset.count()
     num_queries = int(math.ceil(float(total_num_emails) / float(settings.EMAILS_PER_QUERY)))
-    log.info("Sending email with id %s to %s users, using %s queries",
+    log.warning("Sending email with id %s to %s users, using %s queries",
              email_id, total_num_emails, num_queries)
     last_pk = recipient_qset[0].pk - 1
     num_workers = 0
@@ -111,10 +111,16 @@ def delegate_email_batches(email_id, user_id):
         num_emails_this_query = len(recipient_sublist)
         num_tasks_this_query = int(math.ceil(float(num_emails_this_query) / float(settings.EMAILS_PER_TASK)))
         chunk = int(math.ceil(float(num_emails_this_query) / float(num_tasks_this_query)))
-        log.info("In query %s/%s ; spawning %s tasks to send %s emails.", _+1, num_queries, num_tasks_this_query, num_emails_this_query)
+        log.warning("In query %s/%s ; spawning %s tasks to send %s emails.", _+1, num_queries, num_tasks_this_query, num_emails_this_query)
         for i in range(num_tasks_this_query):
-            log.info("QUERY %s ------ TASK %s/%s", _+1, i+1, num_tasks_this_query)
-            to_list = recipient_sublist[i * chunk:i * chunk + chunk]
+            log.warning("QUERY %s ------ TASK %s/%s", _+1, i+1, num_tasks_this_query)
+            if (i+1) == num_tasks_this_query:
+                # Avoid cutting off the very last email when chunking a task that divides perfectly
+                # (eg num_emails_this_query = 297 and EMAILS_PER_TASK is 100)
+                to_list = recipient_sublist[i * chunk:]
+            else:
+                to_list = recipient_sublist[i * chunk:i * chunk + chunk]
+
             course_email.delay(
                 email_id,
                 to_list,
@@ -125,7 +131,7 @@ def delegate_email_batches(email_id, user_id):
             )
         num_workers += num_tasks_this_query
         num_emails += num_emails_this_query
-    log.info("Spawned %s workers; sent %s emails", num_workers, num_emails)
+    log.warning("Spawned %s workers; sent %s emails", num_workers, num_emails)
     return num_workers
 
 
@@ -170,8 +176,6 @@ def _send_course_email(email_id, to_list, course_title, course_url, image_url, t
     from_addr = '"{0}" Course Staff <{1}>'.format(course_title_no_quotes, settings.DEFAULT_BULK_FROM_EMAIL)
 
     course_email_template = CourseEmailTemplate.get_template()
-
-    successful_sends = []
 
     try:
         connection = get_connection()
@@ -221,7 +225,6 @@ def _send_course_email(email_id, to_list, course_title, course_url, image_url, t
                 dog_stats_api.increment('course_email.sent', tags=[_statsd_tag(course_title)])
 
                 log.info('Task %s: Email with id %s sent to %s', current_task.request.id, email_id, email)
-                successful_sends.append(to_list[-1])
                 num_sent += 1
 
             except SMTPDataError as exc:
@@ -238,13 +241,13 @@ def _send_course_email(email_id, to_list, course_title, course_url, image_url, t
             to_list.pop()
 
         connection.close()
+
+        log.info("Task %s: Sent %s, Fail %s, Optout %s", current_task.request.id, num_sent, num_error, num_optout)
         return course_email_result(num_sent, num_error, num_optout)
 
     except SENDING_RATE_ERROR as exc:
-        current_task.request.retries = min(current_task.request.retries, 4)
-        resend_list = [email for email in to_list if email not in successful_sends]
         log.info("Task %s: Successfully sent to %s users; failed to send to %s users",
-                 current_task.request.id, len(successful_sends), len(resend_list))
+                 current_task.request.id, num_sent, len(to_list))
         # Retry the email at increasing exponential backoff.
         # Don't resend emails that have already succeeded.
         log.warning('Task %s: Email with id %d not delivered due to rate exceeded error %s, retrying send to %d recipients',
@@ -259,14 +262,15 @@ def _send_course_email(email_id, to_list, course_title, course_url, image_url, t
         raise course_email.retry(
             args=[
                 email_id,
-                resend_list,
+                to_list,
                 course_title,
                 course_url,
                 image_url,
                 True
             ],
             exc=exc,
-            countdown=countdown
+            countdown=countdown,
+            max_retries=current_task.max_retries+1
         )
 
     except RETRY_ERRORS as exc:
