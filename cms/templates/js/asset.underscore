@@ -6,7 +6,7 @@
     </div>
 </td>
 <td class="name-col">
-    <a data-tooltip="<%= gettext('Open/download this file') %>" href="<%= url %>" class="filename"><%= display_name %></a>
+    <span class="title"><a data-tooltip="<%= gettext('Open/download this file') %>" href="<%= url %>" class="filename"><%= display_name %></a></span>
 
     <div class="embeddable-xml"></div>
 </td>

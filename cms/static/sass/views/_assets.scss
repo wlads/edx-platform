@@ -50,6 +50,8 @@ body.course.uploads {
     table {
       width: 100%;
       border-top: 5px solid $gray-l4;
+      word-wrap: break-word;
+
 
       thead tr {
       }
@@ -111,17 +113,38 @@ body.course.uploads {
             background-color: $blue-l5;
 
             .date-col,
-            .embed-col {
-              opacity: 1;
+            .embed-col,
+            .embed-col .embeddable-xml-input {
+              color: $gray;
             }
           }
 
 
         }
 
-        .thumb-col {
-          width: 100px;
+        .thumb-cols {
           padding: ($baseline/2) $baseline;
+          width: 100px;
+        }
+
+        .name-cols {
+          width: 250px;
+        }
+
+        .date-cols {
+          width: 100px;
+        }
+
+        .embed-cols {
+          width: 200px;
+        }
+
+        .actions-cols {
+          width: ($baseline*3);
+          padding: ($baseline/2);
+        }
+
+        .thumb-col {
           overflow: hidden;
 
           .thumb {
@@ -135,21 +158,25 @@ body.course.uploads {
 
         .name-col {
           @extend %t-copy-sub1;
-          width: 20%;
+          text-overflow: ellipsis;
+
+          .title {
+            display: inline-block;
+            max-width: 200px;
+            overflow: hidden;
+          }
         }
 
         .date-col {
           @include transition(all $tmg-f2 ease-in-out 0s);
           @extend %t-copy-sub2;
-          opacity: .5;
-          width: 15%;
+          color: $gray-l2;
         }
 
         .embed-col {
           @include transition(all $tmg-f2 ease-in-out 0s);
-          opacity: .5;
-          width: 30%;
           padding-left: ($baseline*.75);
+          color: $gray-l2;
 
           .embeddable-xml-input {
             @extend %t-copy-sub2;
@@ -157,6 +184,7 @@ body.course.uploads {
             border: none;
             background: none;
             width: 100%;
+            color: $gray-l2;
 
             &:focus {
               background-color: $white;
@@ -168,8 +196,6 @@ body.course.uploads {
 
         .actions-col {
           text-align: center;
-          width: ($baseline*3);
-          padding: ($baseline/2);
         }
       }
     }
