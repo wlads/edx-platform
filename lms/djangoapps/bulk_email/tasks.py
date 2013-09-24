@@ -269,7 +269,8 @@ def _send_course_email(email_id, to_list, course_title, course_url, image_url, t
                 True
             ],
             exc=exc,
-            countdown=countdown
+            countdown=countdown,
+            max_retries=current_task.max_retries+1
         )
 
     except RETRY_ERRORS as exc:
