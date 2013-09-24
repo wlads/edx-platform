@@ -710,7 +710,7 @@ def instructor_dashboard(request, course_id):
         email_subject = request.POST.get("subject")
         html_message = request.POST.get("message")
         text_message = html_to_text(html_message)
-        log.warning("Sending email from instructor dash to %s", email_to_option)
+
         email = CourseEmail(
             course_id=course_id,
             sender=request.user,
