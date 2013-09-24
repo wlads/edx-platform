@@ -1,5 +1,4 @@
 from django.http import HttpResponse, HttpResponseNotModified
-from django.shortcuts import redirect
 from student.models import CourseEnrollment
 
 from xmodule.contentstore.django import contentstore
@@ -48,11 +47,9 @@ class StaticContentServer(object):
                 if not hasattr(request, "user") or not request.user.is_authenticated():
                     return HttpResponse('Unauthorized', status=403)
                 course_partial_id = "/".join([loc.org, loc.course])
-                if not CourseEnrollment.is_enrolled_by_partial(request.user, course_partial_id):
+                if not request.user.is_staff and not CourseEnrollment.is_enrolled_by_partial(
+                        request.user, course_partial_id):
                     return HttpResponse('Unauthorized', status=403)
-
-
-            # see if the last-modified at hasn't changed, if not return a 302 (Not Modified)
 
             # convert over the DB persistent last modified timestamp to a HTTP compatible
             # timestamp, so we can simply compare the strings
