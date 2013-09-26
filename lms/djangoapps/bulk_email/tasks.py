@@ -252,13 +252,17 @@ def _send_course_email(email_id, to_list, course_title, course_url, image_url, t
         # Don't resend emails that have already succeeded.
         log.warning('Task %s: Email with id %d not delivered due to rate exceeded error %s, retrying send to %d recipients',
                     current_task.request.id, email_id, exc, len(to_list))
-        countdown = ((2 ** current_task.request.retries) * 15) * random.uniform(.5, 1.5)
+        # Calculate backoff (in seconds) - time until we retry this task
+        exp = min(current_task.request.retries, 5)
+        countdown = ((2 ** exp) * 15) * random.uniform(.5, 1.25)
         log.warning(
             'Current task %s stats: num retries: %s; backoff: %s',
             current_task.request.id,
             current_task.request.retries,
             countdown
         )
+        current_task.max_retries = current_task.max_retries + 1
+
         raise course_email.retry(
             args=[
                 email_id,
@@ -270,7 +274,7 @@ def _send_course_email(email_id, to_list, course_title, course_url, image_url, t
             ],
             exc=exc,
             countdown=countdown,
-            max_retries=current_task.max_retries+1
+            max_retries=current_task.max_retries
         )
 
     except RETRY_ERRORS as exc:
