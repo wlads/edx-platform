@@ -14,6 +14,8 @@ from xmodule.modulestore.exceptions import InsufficientSpecificationError, OverS
 
 from .parsers import parse_url, parse_course_id, parse_block_ref
 from .parsers import BRANCH_PREFIX, BLOCK_PREFIX, URL_VERSION_PREFIX
+import re
+from xmodule.modulestore import Location
 
 log = logging.getLogger(__name__)
 
@@ -88,6 +90,61 @@ class Locator(object):
             raise OverSpecificationError('%s cannot be both %s and %s' %
                                          (property_name, current, new))
         setattr(self, property_name, new)
+
+    @staticmethod
+    def to_locator_or_location(location):
+        """
+        Convert the given locator like thing to the appropriate type of object, or, if already
+        that type, just return it. Returns an old Location, BlockUsageLocator,
+        or DefinitionLocator.
+
+        :param location: can be a Location, Locator, string, tuple, list, or dict.
+        """
+        if isinstance(location, (Location, Locator)):
+            return location
+        if isinstance(location, basestring):
+            return Locator.parse_url(location)
+        if isinstance(location, (list, tuple)):
+            return Location(location)
+        if isinstance(location, dict) and 'name' in location:
+            return Location(location)
+        if isinstance(location, dict):
+            return BlockUsageLocator(**location)
+        raise ValueError(location)
+
+    URL_TAG_RE = re.compile(r'^(\w+)://')
+    @staticmethod
+    def parse_url(url):
+        """
+        Parse the url into one of the Locator types (must have a tag indicating type)
+        Return the new instance. Supports i4x, cvx, edx,
+
+        :param url: the url to parse
+        """
+        parsed = Locator.URL_TAG_RE.match(url)
+        if parsed is None:
+            raise ValueError(parsed)
+        parsed = parsed.group(1)
+        if parsed in ['i4x', 'c4x']:
+            return Location(url)
+        elif parsed == 'edx':
+            return BlockUsageLocator(url)
+        elif parsed == 'defx':
+            return DefinitionLocator(url)
+        return None
+
+    @classmethod
+    def as_object_id(cls, value):
+        """
+        Attempts to cast value as a bson.objectid.ObjectId.
+        If cast fails, raises ValueError
+        """
+        if isinstance(value, ObjectId):
+            return value
+        try:
+            return ObjectId(value)
+        except InvalidId:
+            raise ValueError('"%s" is not a valid version_guid' % value)
 
 
 class CourseLocator(Locator):
@@ -208,18 +265,55 @@ class CourseLocator(Locator):
                              version_guid=self.version_guid,
                              branch=self.branch)
 
-    @classmethod
-    def as_object_id(cls, value):
+    OLD_COURSE_ID_RE = re.compile(r'^(?P<org>[^.]+)\.?(?P<old_course_id>.+)?\.(?P<run>[^.]+)$')
+    @property
+    def as_old_location_course_id(self):
         """
-        Attempts to cast value as a bson.objectid.ObjectId.
-        If cast fails, raises ValueError
+        The original Location type presented its course id as org/course/run. This function
+        assumes the course_id starts w/ org, has an arbitrarily long 'course' identifier, and then
+        ends w/ run all separated by periods.
+
+        If this object does not have a course_id, this function returns None.
         """
-        if isinstance(value, ObjectId):
-            return value
-        try:
-            return ObjectId(value)
-        except InvalidId:
-            raise ValueError('"%s" is not a valid version_guid' % value)
+        if self.course_id is not None:
+            parsed = self.OLD_COURSE_ID_RE.match(self.course_id)
+            if parsed.group('old_course_id'):
+                return '/'.join(parsed.groups())
+            else:
+                return parsed.group('org') + '/' + parsed.group('run')
+        else:
+            return None
+
+    @property
+    def as_old_location_org(self):
+        """
+        Presume the first part of the course_id is the org and return it.
+        """
+        if self.course_id is None:
+            return None
+        parsed = self.OLD_COURSE_ID_RE.match(self.course_id)
+        return parsed.group('org')
+
+    @property
+    def as_old_location_course(self):
+        """
+        Presume the middle part, if any, of the course_id is the old location scheme's
+        course id and return it.
+        """
+        if self.course_id is None:
+            return None
+        parsed = self.OLD_COURSE_ID_RE.match(self.course_id)
+        return parsed.group('old_course_id')
+
+    @property
+    def as_old_location_run(self):
+        """
+        Presume the last part of the course_id is the old location scheme's run and return it.
+        """
+        if self.course_id is None:
+            return None
+        parsed = self.OLD_COURSE_ID_RE.match(self.course_id)
+        return parsed.group('run')
 
     def init_from_url(self, url):
         """
@@ -429,8 +523,13 @@ class DefinitionLocator(Locator):
     Container for how to locate a description (the course-independent content).
     """
 
+    URL_RE = re.compile(r'^defx://' + URL_VERSION_PREFIX + '([^/]+)$', re.IGNORECASE)
     def __init__(self, definition_id):
-        self.definition_id = definition_id
+        if isinstance(definition_id, basestring):
+            regex_match = self.URL_RE.match(definition_id)
+            if regex_match is not None:
+                definition_id = self.as_object_id(regex_match.group(1))
+        self.definition_id = self.as_object_id(definition_id)
 
     def __unicode__(self):
         '''
@@ -442,9 +541,9 @@ class DefinitionLocator(Locator):
     def url(self):
         """
         Return a string containing the URL for this location.
-        url(self) returns something like this: 'edx://version/519665f6223ebd6980884f2b'
+        url(self) returns something like this: 'defx://version/519665f6223ebd6980884f2b'
         """
-        return 'edx://' + unicode(self)
+        return 'defx://' + unicode(self)
 
     def version(self):
         """
