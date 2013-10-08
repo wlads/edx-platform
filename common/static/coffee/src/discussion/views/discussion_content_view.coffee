@@ -4,7 +4,7 @@ if Backbone?
   
     events:
       "click .discussion-flag-abuse": "toggleFlagAbuse"
-  
+      "keypress .discussion-flag-abuse": "toggleFlagAbuseKeypress"
   
     attrRenderer:
       endorsed: (endorsed) ->
@@ -106,6 +106,9 @@ if Backbone?
       @model.bind('change', @renderPartialAttrs, @)
       
      
+    toggleFlagAbuseKeypress: (event) ->
+      if event.which == 32 or event.which == 13
+        @toggleFlagAbuse(event)
      
     toggleFlagAbuse: (event) ->
       event.preventDefault()
