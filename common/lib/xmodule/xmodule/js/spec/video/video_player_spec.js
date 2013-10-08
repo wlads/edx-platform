@@ -1,5 +1,5 @@
 (function() {
-  xdescribe('VideoPlayer', function() {
+  describe('VideoPlayer', function() {
     var state, videoPlayer, player, videoControl, videoCaption, videoProgressSlider, videoSpeedControl, videoVolumeControl, oldOTBD;
 
     function initialize(fixture) {
@@ -78,6 +78,8 @@
 
       it('create Youtube player', function() {
         var oldYT = window.YT;
+
+        jasmine.stubRequests();
 
         window.YT = {
             Player: function () { },
@@ -545,7 +547,7 @@
         });
 
         it('replace the full screen button tooltip', function() {
-          expect($('.add-fullscreen')).toHaveAttr('title', 'Exit fullscreen');
+          expect($('.add-fullscreen')).toHaveAttr('title', 'Exit full browser');
         });
 
         it('add the video-fullscreen class', function() {
@@ -571,7 +573,7 @@
         });
 
         it('replace the full screen button tooltip', function() {
-          expect($('.add-fullscreen')).toHaveAttr('title', 'Fullscreen');
+          expect($('.add-fullscreen')).toHaveAttr('title', 'Fill browser');
         });
 
         it('remove the video-fullscreen class', function() {

@@ -1,5 +1,5 @@
 (function() {
-  xdescribe('VideoQualityControl', function() {
+  describe('VideoQualityControl', function() {
     var state, videoControl, videoQualityControl, oldOTBD;
 
     function initialize() {
@@ -24,7 +24,8 @@
         initialize();
       });
 
-      it('render the quality control', function() {
+      // Disabled when ARIA markup was added to the anchor
+      xit('render the quality control', function() {
         expect(videoControl.secondaryControlsEl.html()).toContain("<a href=\"#\" class=\"quality_control\" title=\"HD\">");
       });
 

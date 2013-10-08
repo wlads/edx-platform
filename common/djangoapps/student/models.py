@@ -805,7 +805,8 @@ class CourseEnrollment(models.Model):
             record.is_active = False
             record.save()
         except cls.DoesNotExist:
-            log.error("Tried to unenroll student {} from {} but they were not enrolled")
+            err_msg = u"Tried to unenroll student {} from {} but they were not enrolled"
+            log.error(err_msg.format(user, course_id))
 
     @classmethod
     def unenroll_by_email(cls, email, course_id):
@@ -827,9 +828,6 @@ class CourseEnrollment(models.Model):
     @classmethod
     def is_enrolled(cls, user, course_id):
         """
-        Remove the user from a given course. If the relevant `CourseEnrollment`
-        object doesn't exist, we log an error but don't throw an exception.
-
         Returns True if the user is enrolled in the course (the entry must exist
         and it must have `is_active=True`). Otherwise, returns False.
 
@@ -844,6 +842,48 @@ class CourseEnrollment(models.Model):
             return record.is_active
         except cls.DoesNotExist:
             return False
+
+    @classmethod
+    def is_enrolled_by_partial(cls, user, course_id_partial):
+        """
+        Returns `True` if the user is enrolled in a course that starts with
+        `course_id_partial`. Otherwise, returns False.
+
+        Can be used to determine whether a student is enrolled in a course
+        whose run name is unknown.
+
+        `user` is a Django User object. If it hasn't been saved yet (no `.id`
+               attribute), this method will automatically save it before
+               adding an enrollment for it.
+
+        `course_id_partial` is a starting substring for a fully qualified
+               course_id (e.g. "edX/Test101/").
+        """
+        try:
+            return CourseEnrollment.objects.filter(
+                user=user,
+                course_id__startswith=course_id_partial,
+                is_active=1
+            ).exists()
+        except cls.DoesNotExist:
+            return False
+
+    @classmethod
+    def enrollment_mode_for_user(cls, user, course_id):
+        """
+        Returns the enrollment mode for the given user for the given course
+
+        `user` is a Django User object
+        `course_id` is our usual course_id string (e.g. "edX/Test101/2013_Fall)
+        """
+        try:
+            record = CourseEnrollment.objects.get(user=user, course_id=course_id)
+            if record.is_active:
+                return record.mode
+            else:
+                return None
+        except cls.DoesNotExist:
+            return None
 
     @classmethod
     def enrollments_for_user(cls, user):
