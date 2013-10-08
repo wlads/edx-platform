@@ -1,8 +1,7 @@
 """
-Unit tests for email feature flag in new instructor dashboard
-and student dashboard. Additionally tests that bulk email
-is always disabled for non-Mongo backed courses, regardless
-of email feature flag.
+Unit tests for email feature flag in new instructor dashboard. 
+Additionally tests that bulk email is always disabled for 
+non-Mongo backed courses, regardless of email feature flag.
 """
 
 from django.test.utils import override_settings
@@ -20,13 +19,7 @@ from mock import patch
 @override_settings(MODULESTORE=TEST_DATA_MONGO_MODULESTORE)
 class TestNewInstructorDashboardEmailView(ModuleStoreTestCase):
     """
-    Check for email view displayed with flag
-    """
-
-@override_settings(MODULESTORE=TEST_DATA_MONGO_MODULESTORE)
-class TestInstructorDashboardEmailView(ModuleStoreTestCase):
-    """
-    Check for email view displayed with flag
+    Check for email view on the new instructor dashboard
     """
     def setUp(self):
         self.course = CourseFactory.create()
@@ -46,9 +39,11 @@ class TestInstructorDashboardEmailView(ModuleStoreTestCase):
         """
         patch.stopall()
 
-    # Enabled and IS mongo
+    # In order for bulk email to work, we must have both the ENABLE_INSTRUCTOR_EMAIL_FLAG
+    # set to True and for the course to be Mongo-backed.
+    # The flag is enabled and the course is Mongo-backed (should work)
     @patch.dict(settings.MITX_FEATURES, {'ENABLE_INSTRUCTOR_EMAIL': True})
-    def test_email_flag_true(self):
+    def test_email_flag_true_mongo_true(self):
         # Assert that the URL for the email view is in the response
         response = self.client.get(self.url)
         self.assertTrue(self.email_link in response.content)
@@ -57,44 +52,31 @@ class TestInstructorDashboardEmailView(ModuleStoreTestCase):
         self.assertTrue(send_to_label in response.content)
         self.assertEqual(response.status_code,200)
 
-    # Disabled but IS mongo
+    # The course is Mongo-backed but the flag is disabled (should not work)
     @patch.dict(settings.MITX_FEATURES, {'ENABLE_INSTRUCTOR_EMAIL': False})
-    def test_email_flag_false(self):
+    def test_email_flag_false_mongo_true(self):
         # Assert that the URL for the email view is not in the response
         response = self.client.get(self.url)
         self.assertFalse(self.email_link in response.content)
 
-    # Enabled but NOT mongo
+    # The flag is enabled but the course is not Mongo-backed (should not work)
     @patch.dict(settings.MITX_FEATURES,{'ENABLE_INSTRUCTOR_EMAIL': True})
-    def test_email_flag_false(self):
+    def test_email_flag_true_mongo_false(self):
+
+	# Since the course facotry uses a MongoModuleStore backing, we use this patch to change the
+	# the type to XML-backed.  Thus we can check to ensure the email tab won't display on
+	# XML-backed courses.
         with patch('xmodule.modulestore.mongo.base.MongoModuleStore.get_modulestore_type') as mock_modulestore:
             mock_modulestore.return_value = XML_MODULESTORE_TYPE
 
             response = self.client.get(self.url)
             self.assertFalse(self.email_link in response.content)
 
-    @patch.dict(settings.MITX_FEATURES, {'ENABLE_INSTRUCTOR_EMAIL': True})
-    def test_email_flag_true_xml_store(self):
-        # If the enable email setting is enabled, but this is an XML backed course,
-        # the email view shouldn't be available on the instructor dashboard.
-
-        # The course factory uses a MongoModuleStore backing, so patch the
-        # `get_modulestore_type` method to pretend to be XML-backed.
-        # This is OK; we're simply testing that the `is_mongo_modulestore_type` flag
-        # in `instructor/views/legacy.py` is doing the correct thing.
-
-        with patch('xmodule.modulestore.mongo.base.MongoModuleStore.get_modulestore_type') as mock_modulestore:
-            mock_modulestore.return_value = XML_MODULESTORE_TYPE
-
-            # Assert that the URL for the email view is not in the response
-            response = self.client.get(self.url)
-            self.assertFalse(self.email_link in response.content)
-
-    # Disabled and IS Mongo
+    # The flag is disabled and the course is not Mongo-backed (should not work)
     @patch.dict(settings.MITX_FEATURES, {'ENABLE_INSTRUCTOR_EMAIL': False})
-    def test_email_flag_false_xml_store(self):
+    def test_email_flag_false_mongo_false(self):
 
-        # Same process as in test_email_flag_true_xml_store
+	# Same method from test_email_flag_true_mongo_false
         with patch('xmodule.modulestore.mongo.base.MongoModuleStore.get_modulestore_type') as mock_modulestore:
             mock_modulestore.return_value = XML_MODULESTORE_TYPE
 

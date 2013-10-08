@@ -110,12 +110,11 @@ def require_query_params(*args, **kwargs):
 
 def require_post_params(*args, **kwargs):
     """
-    Checks for required paremters or renders a 400 error.
+    Checks for required parameters or renders a 400 error.
     (decorator with arguments)
 
-    `args` is a *list of required GET parameter names.
-    `kwargs` is a **dict of required GET parameter names
-        to string explanations of the parameter
+    Functions like 'require_query_params', but checks for
+    POST parameters rather than GET paramaters.
     """
     required_params = []
     required_params += [(arg, None) for arg in args]
@@ -742,42 +741,6 @@ def list_forum_members(request, course_id):
     response_payload = {
         'course_id': course_id,
         rolename: map(extract_user_info, users),
-    }
-    return JsonResponse(response_payload)
-
-
-@ensure_csrf_cookie
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@require_level('staff')
-@require_post_params(send_to="sending to whom", subject="subject line", message="message text")
-def send_email(request, course_id):
-    """
-    Send an email to self, staff, or everyone involved in a course.
-    Query Parameters:
-    - 'send_to' specifies what group the email should be sent to
-    - 'subject' specifies email's subject
-    - 'message' specifies email's content
-    """
-    course = get_course_by_id(course_id)
-    send_to = request.POST.get("send_to")
-    subject = request.POST.get("subject")
-    message = request.POST.get("message")
-    text_message = html_to_text(message)
-    email = CourseEmail(
-        course_id=course_id,
-        sender=request.user,
-        to_option=send_to,
-        subject=subject,
-        html_message=message,
-        text_message=text_message
-    )
-    email.save()
-    tasks.delegate_email_batches.delay(
-        email.id,
-        request.user.id
-    )
-    response_payload = {
-        'course_id': course_id,
     }
     return JsonResponse(response_payload)
 
