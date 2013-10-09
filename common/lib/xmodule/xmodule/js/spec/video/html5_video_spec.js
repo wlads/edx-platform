@@ -40,10 +40,7 @@
                         expect(player.video.play).toHaveBeenCalled();
                     });
 
-                    // Temporarily disabled due to intermittent failures
-                    // Fails with "timeout: timed out after 1000 msec waiting for Player state should be changed"
-                    // on Firefox
-                    xit('player state was changed', function () {
+                    it('player state was changed', function () {
                         waitsFor(function () {
                             return player.getPlayerState() !== STATUS.PAUSED;
                         }, 'Player state should be changed', WAIT_TIMEOUT);
