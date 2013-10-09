@@ -108,6 +108,9 @@ def clear_existing_modulestores():
     This is useful for flushing state between unit tests.
     """
     _MODULESTORES.clear()
+    # pylint: disable=W0603
+    global _loc_singleton
+    _loc_singleton = None
 
 
 def editable_modulestore(name='default'):

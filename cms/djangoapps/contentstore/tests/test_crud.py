@@ -2,7 +2,7 @@ import unittest
 from xmodule import templates
 from xmodule.modulestore.tests import persistent_factories
 from xmodule.course_module import CourseDescriptor
-from xmodule.modulestore.django import modulestore, loc_mapper
+from xmodule.modulestore.django import modulestore, loc_mapper, clear_existing_modulestores
 from xmodule.seq_module import SequenceDescriptor
 from xmodule.capa_module import CapaDescriptor
 from xmodule.modulestore.locator import CourseLocator, BlockUsageLocator
@@ -195,6 +195,7 @@ class TemplateTests(unittest.TestCase):
         """
         Test that creating a loc_mapper causes it to automatically attach to the split mongo store
         """
+        clear_existing_modulestores()
         # instantiate location mapper before split
         mapper = loc_mapper()
         # split must inject the location mapper itself since the mapper existed before it did
@@ -204,6 +205,7 @@ class TemplateTests(unittest.TestCase):
         """
         Test that creating a loc_mapper causes it to automatically attach to the split mongo store
         """
+        clear_existing_modulestores()
         # force instantiation of split modulestore before there's a location mapper and verify
         # it has no pointer to loc mapper
         self.assertIsNone(modulestore('split').loc_mapper)
