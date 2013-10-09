@@ -113,7 +113,6 @@ class BaseInstructorTask(Task):
             # if the InstructorTask object does not exist, then there's no point
             # trying to update it.
             TASK_LOG.error("Task (%s) has no InstructorTask object for id %s", task_id, entry_id)
-            pass
         else:
             TASK_LOG.warning("Task (%s) failed: %s %s", task_id, einfo.exception, einfo.traceback)
             entry.task_output = InstructorTask.create_output_for_failure(einfo.exception, einfo.traceback)

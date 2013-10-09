@@ -94,6 +94,7 @@ class InstructorTaskReportTest(InstructorTaskTestCase):
         self.assertEquals(output['task_progress'], expected_progress)
 
     def _create_email_subtask_entry(self, total=5, attempted=3, succeeded=2, skipped=0, task_state=PROGRESS):
+        """Create an InstructorTask with subtask defined and email argument."""
         progress = {'attempted': attempted,
                     'succeeded': succeeded,
                     'skipped': skipped,

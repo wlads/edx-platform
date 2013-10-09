@@ -318,11 +318,11 @@ def send_course_email(entry_id, email_id, to_list, global_email_context, subtask
         # was encountered has already been updated before the retry call was made,
         # so we only log here.
         log.warning("Send-email task %s: being retried", current_task_id)
-        raise send_exception
+        raise send_exception  # pylint: disable=E0702
     else:
         log.error("Send-email task %s: failed: %s", current_task_id, send_exception)
         update_subtask_status(entry_id, current_task_id, new_subtask_status)
-        raise send_exception
+        raise send_exception  # pylint: disable=E0702
 
     log.info("Send-email task %s: returning status %s", current_task_id, new_subtask_status)
     return new_subtask_status

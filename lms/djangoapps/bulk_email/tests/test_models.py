@@ -1,4 +1,6 @@
-
+"""
+Unit tests for bulk-email-related models.
+"""
 from django.test import TestCase
 
 from bulk_email.models import CourseEmail, SEND_TO_STAFF

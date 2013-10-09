@@ -224,4 +224,3 @@ class TestEmailErrors(ModuleStoreTestCase):
             # for the subtask, and it's not important to the test.
             with patch('bulk_email.tasks.update_subtask_status'):
                 send_course_email(entry_id, bogus_email_id, to_list, global_email_context, subtask_status)
-
