@@ -259,7 +259,7 @@ define ["js/views/overview", "js/views/feedback_notification", "sinon", "js/base
     
             it "scrolls down if necessary", ->
                 height = Math.max(window.innerHeight, 100);
-                spyOn(window, 'innerHeight').andReturn(height)
+                window.innerHeight = height;
                 scrollSpy = spyOn(window, 'scrollBy').andCallThrough()
                 OverviewDragger.onDragMove(
                     {element: $('#unit-1')}, '', {clientY: (height - 5)}
