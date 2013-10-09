@@ -50,8 +50,8 @@ def my_update_subtask_status(entry_id, current_task_id, new_subtask_status):
     and run to completion before control is returned to the code that
     invoked the retry.  If the retries eventually end in failure (e.g. due to
     a maximum number of retries being attempted), the "eager" code will return
-    the error for each retry that is on the stack.  We want to just ignore the
-    later updates that are called as the result of the earlier retries.
+    the error for each retry as it is popped off the stack.  We want to just ignore
+    the later updates that are called as the result of the earlier retries.
 
     This should not be an issue in production, where status is updated before
     a task is retried, and is then updated afterwards if the retry fails.
@@ -93,7 +93,7 @@ class TestBulkEmailInstructorTask(InstructorTaskCourseTestCase):
         to_option = SEND_TO_ALL
         course_id = course_id or self.course.id
         course_email = CourseEmail.create(course_id, self.instructor, to_option, "Test Subject", "<p>This is a test message</p>")
-        task_input = {'email_id': course_email.id}
+        task_input = {'email_id': course_email.id}  # pylint: disable=E1101
         task_id = str(uuid4())
         instructor_task = InstructorTaskFactory.create(
             course_id=course_id,
@@ -106,13 +106,13 @@ class TestBulkEmailInstructorTask(InstructorTaskCourseTestCase):
 
     def _run_task_with_mock_celery(self, task_class, entry_id, task_id):
         """Submit a task and mock how celery provides a current_task."""
-        self.current_task = Mock()
-        self.current_task.max_retries = settings.BULK_EMAIL_MAX_RETRIES
-        self.current_task.default_retry_delay = settings.BULK_EMAIL_DEFAULT_RETRY_DELAY
+        mock_current_task = Mock()
+        mock_current_task.max_retries = settings.BULK_EMAIL_MAX_RETRIES
+        mock_current_task.default_retry_delay = settings.BULK_EMAIL_DEFAULT_RETRY_DELAY
         task_args = [entry_id, {}]
 
         with patch('bulk_email.tasks._get_current_task') as mock_get_task:
-            mock_get_task.return_value = self.current_task
+            mock_get_task.return_value = mock_current_task
             return task_class.apply(task_args, task_id=task_id).get()
 
     def test_email_missing_current_task(self):
@@ -125,6 +125,18 @@ class TestBulkEmailInstructorTask(InstructorTaskCourseTestCase):
         task_entry = self._create_input_entry(course_id="bogus/course/id")
         with self.assertRaises(ValueError):
             self._run_task_with_mock_celery(send_bulk_course_email, task_entry.id, task_entry.task_id)
+
+    def test_bad_task_id_on_update(self):
+        task_entry = self._create_input_entry()
+
+        def dummy_update_subtask_status(entry_id, _current_task_id, new_subtask_status):
+            """Passes a bad value for task_id to test update_subtask_status"""
+            bogus_task_id = "this-is-bogus"
+            update_subtask_status(entry_id, bogus_task_id, new_subtask_status)
+
+        with self.assertRaises(ValueError):
+            with patch('bulk_email.tasks.update_subtask_status', dummy_update_subtask_status):
+                send_bulk_course_email(task_entry.id, {})  # pylint: disable=E1101
 
     def _create_students(self, num_students):
         """Create students, a problem, and StudentModule objects for testing"""
@@ -140,7 +152,6 @@ class TestBulkEmailInstructorTask(InstructorTaskCourseTestCase):
         self.assertEquals(subtask_info.get('total'), 1)
         self.assertEquals(subtask_info.get('succeeded'), 1 if succeeded > 0 else 0)
         self.assertEquals(subtask_info['failed'], 0 if succeeded > 0 else 1)
-        # self.assertEquals(subtask_info['retried'], retried_nomax + retried_withmax)
         # verify individual subtask status:
         subtask_status_info = subtask_info['status']
         task_id_list = subtask_status_info.keys()

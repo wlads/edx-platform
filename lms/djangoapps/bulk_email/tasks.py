@@ -44,7 +44,7 @@ from instructor_task.subtasks import (
     update_subtask_status,
     create_subtask_status,
     increment_subtask_status,
-    update_instructor_task_for_subtasks,
+    initialize_subtask_info,
 )
 
 log = get_task_logger(__name__)
@@ -222,7 +222,7 @@ def perform_delegate_email_batches(entry_id, course_id, task_input, action_name)
         raise Exception(error_msg)
 
     # Update the InstructorTask  with information about the subtasks we've defined.
-    progress = update_instructor_task_for_subtasks(entry, action_name, total_num_emails, subtask_id_list)
+    progress = initialize_subtask_info(entry, action_name, total_num_emails, subtask_id_list)
     num_subtasks = len(subtask_id_list)
     log.info("Preparing to queue %d email tasks (%d emails) for course %s, email %s, to %s",
              num_subtasks, total_num_emails, course_id, email_id, to_option)
