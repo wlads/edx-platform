@@ -49,6 +49,7 @@ def register_by_course_id(course_id, username='robot', password='test', is_staff
         user.save()
     CourseEnrollment.enroll(user, course_id)
 
+
 @world.absorb
 def add_to_course_staff(username, course_num):
     """

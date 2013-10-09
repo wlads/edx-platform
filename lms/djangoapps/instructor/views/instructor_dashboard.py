@@ -50,7 +50,7 @@ def instructor_dashboard_2(request, course_id):
         _section_data_download(course_id),
         _section_analytics(course_id),
     ]
-    
+
     enrollment_count = sections[0]['enrollment_count']
     disable_buttons = False
     max_enrollment_for_buttons = settings.MITX_FEATURES.get("MAX_ENROLLMENT_INSTR_BUTTONS")
@@ -166,8 +166,8 @@ def _section_send_email(course_id, access, course):
     section_data = {
         'section_key': 'send_email',
         'section_display_name': _('Email'),
-        'access': access, 
-        'send_email': reverse('send_email',kwargs={'course_id': course_id}),
+        'access': access,
+        'send_email': reverse('send_email', kwargs={'course_id': course_id}),
         'editor': email_editor
     }
     return section_data

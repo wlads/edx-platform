@@ -220,18 +220,17 @@ def css_has_text(css_selector, text, index=0, strip=False):
 
 
 @world.absorb
-def css_has_value(css_selector, value, index=0, allow_blank=False):
+def css_has_value(css_selector, value, index=0):
     """
     Return a boolean indicating whether the element with
     `css_selector` has the specified `value`.
 
-    If `allow_blank` is False, wait for the element to have
-    a value that is a non-empty string.
-
     If there are multiple elements matching the css selector,
     use `index` to indicate which one.
     """
-    if not allow_blank:
+    # If we're expecting a non-empty string, give the page
+    # a chance to fill in values
+    if value:
         world.wait_for(lambda _: world.css_value(css_selector, index=index))
 
     return world.css_value(css_selector, index=index) == value
